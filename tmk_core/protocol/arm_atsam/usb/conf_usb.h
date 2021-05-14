@@ -147,6 +147,12 @@
 #    define UDI_HID_RAW_RECEIVE(buffer, len) main_raw_receive(buffer, len)
 #endif
 
+#ifdef HID_LAMPARRAY_ENABLE
+#   define UDI_HID_LAMPARRAY_ENABLE_EXT() main_lamparray_enable()
+#   define UDI_HID_LAMPARRAY_DISABLE_EXT() main_lamparray_disable()
+#   define UDI_HID_LAMPARRAY_RECEIVE(buffer, len) main_lamparray_receive(buffer, len)
+#endif
+
 //@}
 //@}
 

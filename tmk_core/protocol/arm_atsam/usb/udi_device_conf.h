@@ -102,14 +102,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    define NEXT_INTERFACE_8 NEXT_INTERFACE_7
 #endif
 
+#ifdef HID_LAMPARRAY_ENABLE
+#   define LAMPARRAY_INTERFACE NEXT_INTERFACE_8
+#   define NEXT_INTERFACE_9 (LAMPARRAY_INTERFACE + 1)
+#   define LAMPARRAY_IFACE_NUMBER LAMPARRAY_INTERFACE
+#else
+#   define NEXT_INTERFACE_9 NEXT_INTERFACE_8
+#endif
+
 /* nubmer of interfaces */
-#define TOTAL_INTERFACES NEXT_INTERFACE_8
+#define TOTAL_INTERFACES NEXT_INTERFACE_9
 #define USB_DEVICE_NB_INTERFACE TOTAL_INTERFACES
 
 // **********************************************************************
 // Endopoint number and size
 // **********************************************************************
-#define USB_DEVICE_EP_CTRL_SIZE 8
+#define USB_DEVICE_EP_CTRL_SIZE 64
 
 #define NEXT_IN_EPNUM_0 1
 #define NEXT_OUT_EPNUM_0 1
@@ -229,9 +237,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #    define NEXT_OUT_EPNUM_4 NEXT_OUT_EPNUM_3
 #endif
 
-#define TOTAL_OUT_EP NEXT_OUT_EPNUM_4
-#define TOTAL_IN_EP NEXT_IN_EPNUM_8
-#define USB_DEVICE_MAX_EP (max(NEXT_OUT_EPNUM_4, NEXT_IN_EPNUM_8))
+#ifdef HID_LAMPARRAY_ENABLE
+#    define LAMPARRAY_IN_EPNUM NEXT_IN_EPNUM_8
+#    define UDI_HID_LAMPARRAY_EP_IN LAMPARRAY_IN_EPNUM
+#    define NEXT_IN_EPNUM_9 (LAMPARRAY_IN_EPNUM + 1)
+#    define LAMPARRAY_OUT_EPNUM NEXT_OUT_EPNUM_4
+#    define UDI_HID_LAMPARRAY_EP_OUT LAMPARRAY_OUT_EPNUM
+#    define NEXT_OUT_EPNUM_5 (LAMPARRAY_OUT_EPNUM + 1)
+#    define UDI_HID_LAMPARRAY_POLLING_INTERVAL 1
+#    ifndef UDI_HID_LAMPARRAY_STRING_ID
+#        define UDI_HID_LAMPARRAY_STRING_ID 0
+#    endif
+#else
+#   define NEXT_IN_EPNUM_9 NEXT_IN_EPNUM_8
+#   define NEXT_OUT_EPNUM_5 NEXT_OUT_EPNUM_4
+#endif
+
+#define TOTAL_OUT_EP NEXT_OUT_EPNUM_5
+#define TOTAL_IN_EP NEXT_IN_EPNUM_9
+#define USB_DEVICE_MAX_EP (max(NEXT_OUT_EPNUM_5, NEXT_IN_EPNUM_9))
 
 #if USB_DEVICE_MAX_EP > 8
 #    error "There are not enough available endpoints to support all functions. Remove some in the rules.mk file.(MOUSEKEY, EXTRAKEY, CONSOLE, NKRO, MIDI, VIRTSER)"
@@ -779,6 +803,79 @@ COMPILER_PACK_RESET()
 #endif  // VIRTSER_ENABLE
 
 // **********************************************************************
+// HID LampArray Descriptor structure and content
+// **********************************************************************
+#ifdef HID_LAMPARRAY_ENABLE
+#include "hid_lamparray.h"
+#define HID_LAMPARRAY_REPORT_SIZE 51 // extra byte for report ID
+#define HID_LAMPARRAY_DESC_SIZE 327
+
+COMPILER_PACK_SET(1)
+
+typedef struct {
+    usb_iface_desc_t     iface;
+    usb_hid_descriptor_t hid;
+    usb_ep_desc_t        ep_out;
+    usb_ep_desc_t        ep_in;
+} udi_hid_lamparray_desc_t;
+
+typedef struct {
+    uint8_t array[HID_LAMPARRAY_DESC_SIZE];
+} udi_hid_lamparray_report_desc_t;
+
+// clang-format off
+
+#    define UDI_HID_LAMPARRAY_DESC { \
+    .iface = { \
+        .bLength = sizeof(usb_iface_desc_t), \
+        .bDescriptorType = USB_DT_INTERFACE, \
+        .bInterfaceNumber = LAMPARRAY_IFACE_NUMBER, \
+        .bAlternateSetting = 0, \
+        .bNumEndpoints = 2, \
+        .bInterfaceClass = HID_CLASS, \
+        .bInterfaceSubClass = HID_SUB_CLASS_NOBOOT, \
+        .bInterfaceProtocol = HID_SUB_CLASS_NOBOOT, \
+        .iInterface = UDI_HID_LAMPARRAY_STRING_ID \
+    }, \
+    .hid = { \
+        .bLength = sizeof(usb_hid_descriptor_t), \
+        .bDescriptorType = USB_DT_HID, \
+        .bcdHID = LE16(USB_HID_BDC_V1_11), \
+        .bCountryCode = USB_HID_NO_COUNTRY_CODE, \
+        .bNumDescriptors = USB_HID_NUM_DESC, \
+        .bRDescriptorType = USB_DT_HID_REPORT, \
+        .wDescriptorLength = LE16(sizeof(udi_hid_lamparray_report_desc_t)) \
+    }, \
+    .ep_out = { \
+        .bLength = sizeof(usb_ep_desc_t), \
+        .bDescriptorType = USB_DT_ENDPOINT, \
+        .bEndpointAddress = UDI_HID_LAMPARRAY_EP_OUT | USB_EP_DIR_OUT, \
+        .bmAttributes = USB_EP_TYPE_INTERRUPT, \
+        .wMaxPacketSize = LE16(HID_LAMPARRAY_REPORT_SIZE), \
+        .bInterval = UDI_HID_LAMPARRAY_POLLING_INTERVAL \
+    }, \
+    .ep_in = { \
+        .bLength = sizeof(usb_ep_desc_t), \
+        .bDescriptorType = USB_DT_ENDPOINT, \
+        .bEndpointAddress = UDI_HID_LAMPARRAY_EP_IN | USB_EP_DIR_IN, \
+        .bmAttributes = USB_EP_TYPE_INTERRUPT, \
+        .wMaxPacketSize = LE16(HID_LAMPARRAY_REPORT_SIZE), \
+        .bInterval = UDI_HID_LAMPARRAY_POLLING_INTERVAL \
+    } \
+}
+
+// clang-format on
+
+extern uint8_t udi_hid_lamparray_report_set[HID_LAMPARRAY_REPORT_SIZE];
+
+// report buffer
+extern uint8_t udi_hid_lamparray_report[HID_LAMPARRAY_REPORT_SIZE];
+
+COMPILER_PACK_RESET()
+
+#endif  // HID_LAMPARRAY_ENABLE
+
+// **********************************************************************
 // CONFIGURATION Descriptor structure and content
 // **********************************************************************
 COMPILER_PACK_SET(1)
@@ -806,6 +903,9 @@ typedef struct {
 #endif
 #ifdef VIRTSER_ENABLE
     udi_cdc_desc_t cdc_serial;
+#endif
+#ifdef HID_LAMPARRAY_ENABLE
+    udi_hid_lamparray_desc_t hid_lmp;
 #endif
 } udc_desc_t;
 

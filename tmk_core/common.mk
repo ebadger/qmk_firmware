@@ -151,6 +151,10 @@ else ifdef LINK_TIME_OPTIMIZATION_ENABLE
     $(error The LINK_TIME_OPTIMIZATION_ENABLE flag has been renamed to LTO_ENABLE.)
 endif
 
+ifeq ($(strip $(HID_LAMPARRAY_ENABLE)), yes)
+	TMK_COMMON_DEFS += -DHID_LAMPARRAY_ENABLE
+endif
+
 # Search Path
 VPATH += $(TMK_PATH)/$(COMMON_DIR)
 VPATH += $(TMK_PATH)/$(PLATFORM_COMMON_DIR)

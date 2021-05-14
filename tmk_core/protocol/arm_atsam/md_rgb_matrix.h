@@ -87,6 +87,7 @@ extern uint8_t gcr_actual_last;
 void gcr_compute(void);
 
 void md_rgb_matrix_indicators(void);
+extern issi3733_led_t led_map[ISSI3733_LED_COUNT];
 
 /*-------------------------  Legacy Lighting Support  ------------------------*/
 
