@@ -26,5 +26,8 @@
     "python.formatting.provider": "yapf",
     "[json]": {
 	    "editor.formatOnSave": false
-    }
+    },
+    "vscode-nmake-tools.workspaceBuildDirectories": [
+        "c:\\Users\\ebadger.REDMOND\\qmk_firmware"
+    ]
 }

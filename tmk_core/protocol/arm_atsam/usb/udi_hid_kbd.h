@@ -112,6 +112,17 @@ bool                              udi_hid_raw_send_report(void);
 bool                              udi_hid_raw_receive_report(void);
 #endif // RAW_ENABLE
 
+
+//********************************************************************************************
+// LMB LampArray
+//********************************************************************************************
+#ifdef HID_LAMPARRAY_ENABLE
+extern UDC_DESC_STORAGE udi_api_t udi_api_hid_lamparray;
+bool                              udi_hid_lamparray_send_report(void);
+bool                              udi_hid_lamparray_receive_report(void);
+#endif  // HID_LAMPARRAY_ENABLE
+
+
 //@}
 
 #ifdef __cplusplus

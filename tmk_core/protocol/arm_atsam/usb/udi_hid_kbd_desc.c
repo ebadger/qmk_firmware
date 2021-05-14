@@ -139,6 +139,9 @@ UDC_DESC_STORAGE udc_desc_t udc_desc = {
 #ifdef VIRTSER_ENABLE
     .cdc_serial = CDC_DESCRIPTOR,
 #endif
+#ifdef HID_LAMPARRAY_ENABLE
+    .hid_lmp = UDI_HID_LAMPARRAY_DESC,
+#endif
 };
 
 UDC_DESC_STORAGE udi_api_t *udi_apis[USB_DEVICE_NB_INTERFACE] = {
@@ -160,6 +163,9 @@ UDC_DESC_STORAGE udi_api_t *udi_apis[USB_DEVICE_NB_INTERFACE] = {
 #endif
 #ifdef VIRTSER_ENABLE
     &udi_api_cdc_comm, &udi_api_cdc_data,
+#endif
+#ifdef HID_LAMPARRAY_ENABLE
+    &udi_api_hid_lamparray,
 #endif
 };
 

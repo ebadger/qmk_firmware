@@ -86,7 +86,8 @@ extern uint8_t gcr_actual_last;
 
 void gcr_compute(void);
 
-void md_rgb_matrix_indicators_advanced(uint8_t led_min, uint8_t led_max);
+oid md_rgb_matrix_indicators_advanced(uint8_t led_min, uint8_t led_max);
+extern issi3733_led_t led_map[ISSI3733_LED_COUNT];
 
 /*-------------------------  Legacy Lighting Support  ------------------------*/
 

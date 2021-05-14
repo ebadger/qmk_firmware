@@ -876,3 +876,339 @@ static void udi_hid_con_report_sent(udd_ep_status_t status, iram_size_t nb_sent,
 static void udi_hid_con_setreport_valid(void) {}
 
 #endif  // CONSOLE_ENABLE
+
+
+
+//********************************************************************************************
+// LAMPARRAY
+//********************************************************************************************
+#ifdef HID_LAMPARRAY_ENABLE
+
+bool    udi_hid_lamparray_enable(void);
+void    udi_hid_lamparray_disable(void);
+bool    udi_hid_lamparray_setup(void);
+uint8_t udi_hid_lamparray_getsetting(void);
+
+UDC_DESC_STORAGE udi_api_t udi_api_hid_lamparray = {
+    .enable     = (bool (*)(void))udi_hid_lamparray_enable,
+    .disable    = (void (*)(void))udi_hid_lamparray_disable,
+    .setup      = (bool (*)(void))udi_hid_lamparray_setup,
+    .getsetting = (uint8_t(*)(void))udi_hid_lamparray_getsetting,
+    .sof_notify = NULL,
+};
+
+COMPILER_WORD_ALIGNED
+static uint8_t udi_hid_lamparray_rate;
+
+COMPILER_WORD_ALIGNED
+static uint8_t udi_hid_lamparray_protocol;
+
+COMPILER_WORD_ALIGNED
+static uint8_t udi_hid_lamparray_report_index = 0;
+
+COMPILER_WORD_ALIGNED
+uint8_t udi_hid_lamparray_report_set[HID_LAMPARRAY_REPORT_SIZE];
+
+static bool udi_hid_lamparray_b_report_valid;
+
+COMPILER_WORD_ALIGNED
+uint8_t udi_hid_lamparray_report[HID_LAMPARRAY_REPORT_SIZE];
+
+COMPILER_WORD_ALIGNED
+typedef union {
+    uint8_t raw[HID_LAMPARRAY_ATTRIBUTES_REPORT_SIZE];
+    hid_lamparray_attributes_report_t desc;
+} hid_lamparray_attributes_report_storage_t;
+
+COMPILER_WORD_ALIGNED
+hid_lamparray_attributes_report_storage_t hid_lamparray_attributes_report = {
+    .desc = {
+    .report_id = hid_lamparray_attributes_report_id,
+    .lamp_count = DRIVER_LED_TOTAL,
+    .bounding_box = {
+        .x = 322580,
+        .y = 111760,
+        .z = 31750
+    },
+    .array_kind = 0x01, // keyboard
+    .min_update_interval = (RGB_MATRIX_LED_FLUSH_LIMIT * 1000)
+}};
+
+COMPILER_WORD_ALIGNED
+typedef union {
+    uint8_t raw[HID_LAMPARRAY_ATTRIBUTES_RESPONSE_REPORT_SIZE];
+    hid_lamparray_attributes_response_report_t desc;
+} hid_lamparray_attributes_response_report_storage_t;
+
+COMPILER_WORD_ALIGNED
+hid_lamparray_attributes_response_report_storage_t hid_lamparray_attributes_response_report = {
+    .desc = {
+        .report_id = hid_lamparray_attributes_response_report_id,
+        .lamp_id = 0x0000,
+        .position = {
+            .x = 0x00000000,
+            .y = 0x00000000,
+            .z = 0x000000FF,
+        },
+        .update_latency = (RGB_MATRIX_LED_FLUSH_LIMIT * 1000),
+        .lamp_purposes = 0x00000001,
+        .level_counts = {
+            .red = 0xFF,
+            .green = 0xFF,
+            .blue = 0xFF,
+            .intensity = 0x01
+        },
+        .is_programmable = 0x01,
+        .input_binding = 0x00
+    }
+};
+
+COMPILER_WORD_ALIGNED
+UDC_DESC_STORAGE udi_hid_lamparray_report_desc_t udi_hid_lamparray_report_desc = {{
+            0x05, 0x59, /* USAGE_PAGE (LightingAndIllumination) */
+            0x09, 0x01, /* USAGE (LampArray) */
+            0xa1, 0x01, /* COLLECTION (Application) */
+            0x85, hid_lamparray_attributes_report_id, /* REPORT_ID (1) */
+            0x09, 0x02, /* USAGE (LampArrayAttributesReport) */
+            0xa1, 0x02, /* COLLECTION (Logical) */
+            0x09, 0x03, /* USAGE (LampCount) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x27, 0xff, 0xff, 0x00, 0x00, /* LOGICAL_MAXIMUM (65535) */
+            0x75, 0x10, /* REPORT_SIZE (16) */
+            0x95, 0x01, /* REPORT_COUNT (1) */
+            0xb1, 0x03, /* FEATURE (Cnst,Var,Abs) */
+            0x09, 0x04, /* USAGE (BoundingBoxWidthInMicrometers) */
+            0x09, 0x05, /* USAGE (BoundingBoxHeightInMicrometers) */
+            0x09, 0x06, /* USAGE (BoundingBoxDepthInMicrometers) */
+            0x09, 0x07, /* USAGE (LampArrayKind) */
+            0x09, 0x08, /* USAGE (MinUpdateIntervalInMicroseconds) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x27, 0xff, 0xff, 0xff, 0x7f, /* LOGICAL_MAXIMUM (2147483647) */
+            0x75, 0x20, /* REPORT_SIZE (32) */
+            0x95, 0x05, /* REPORT_COUNT (5) */
+            0xb1, 0x03, /* FEATURE (Cnst,Var,Abs) */
+            0xc0, /* END_COLLECTION*/
+            0x85, hid_lamparray_attributes_request_report_id, /* REPORT_ID (2) */
+            0x09, 0x20, /* USAGE (LampAttributesRequestReport) */
+            0xa1, 0x02, /* COLLECTION (Logical) */
+            0x09, 0x21, /* USAGE (LampId) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x27, 0xff, 0xff, 0x00, 0x00, /* LOGICAL_MAXIMUM (65535) */
+            0x75, 0x10, /* REPORT_SIZE (16) */
+            0x95, 0x01, /* REPORT_COUNT (1) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0xc0, /* END_COLLECTION*/
+            0x85, hid_lamparray_attributes_response_report_id, /* REPORT_ID (3) */
+            0x09, 0x22, /* USAGE (LampAttributesReponseReport) */
+            0xa1, 0x02, /* COLLECTION (Logical) */
+            0x09, 0x21, /* USAGE (LampId) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x27, 0xff, 0xff, 0x00, 0x00, /* LOGICAL_MAXIMUM (65535) */
+            0x75, 0x10, /* REPORT_SIZE (16) */
+            0x95, 0x01, /* REPORT_COUNT (1) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0x09, 0x23, /* USAGE (PositionXInMicrometers) */
+            0x09, 0x24, /* USAGE (PositionYInMicrometers) */
+            0x09, 0x25, /* USAGE (PositionZInMicrometers) */
+            0x09, 0x27, /* USAGE (UpdateLatencyInMicroseconds) */
+            0x09, 0x26, /* USAGE (LampPurposes) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x27, 0xff, 0xff, 0xff, 0x7f, /* LOGICAL_MAXIMUM (2147483647) */
+            0x75, 0x20, /* REPORT_SIZE (32) */
+            0x95, 0x05, /* REPORT_COUNT (5) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0x09, 0x28, /* USAGE (RedLevelCount) */
+            0x09, 0x29, /* USAGE (GreenLevelCount) */
+            0x09, 0x2a, /* USAGE (BlueLevelCount) */
+            0x09, 0x2b, /* USAGE (IntensityLevelCount) */
+            0x09, 0x2c, /* USAGE (IsProgrammable) */
+            0x09, 0x2d, /* USAGE (InputBinding) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x26, 0xff, 0x00, /* LOGICAL_MAXIMUM (255) */
+            0x75, 0x08, /* REPORT_SIZE (8) */
+            0x95, 0x06, /* REPORT_COUNT (6) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0xc0, /* END_COLLECTION*/
+            0x85, hid_lamparray_multi_update_report_id, /* REPORT_ID (4) */
+            0x09, 0x50, /* USAGE (LampMultiUpdateReport) */
+            0xa1, 0x02, /* COLLECTION (Logical) */
+            0x09, 0x03, /* USAGE (LampCount) */
+            0x09, 0x55, /* USAGE (LampUpdateFlags) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x25, 0x08, /* LOGICAL_MAXIMUM (8) */
+            0x75, 0x08, /* REPORT_SIZE (8) */
+            0x95, 0x02, /* REPORT_COUNT (2) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0x09, 0x21, /* USAGE (LampId) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x27, 0xff, 0xff, 0x00, 0x00, /* LOGICAL_MAXIMUM (65535) */
+            0x75, 0x10, /* REPORT_SIZE (16) */
+            0x95, 0x08, /* REPORT_COUNT (8) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x26, 0xff, 0x00, /* LOGICAL_MAXIMUM (255) */
+            0x75, 0x08, /* REPORT_SIZE (8) */
+            0x95, 0x20, /* REPORT_COUNT (32) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0xc0, /* END_COLLECTION*/
+            0x85, hid_lamparray_range_update_report_id, /* REPORT_ID (5) */
+            0x09, 0x60, /* USAGE (LampRangeUpdateReport) */
+            0xa1, 0x02, /* COLLECTION (Logical) */
+            0x09, 0x55, /* USAGE (LampUpdateFlags) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x25, 0x08, /* LOGICAL_MAXIMUM (8) */
+            0x75, 0x08, /* REPORT_SIZE (8) */
+            0x95, 0x01, /* REPORT_COUNT (1) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0x09, 0x61, /* USAGE (LampIdStart) */
+            0x09, 0x62, /* USAGE (LampIdEnd) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x27, 0xff, 0xff, 0x00, 0x00, /* LOGICAL_MAXIMUM (65535) */
+            0x75, 0x10, /* REPORT_SIZE (16) */
+            0x95, 0x02, /* REPORT_COUNT (2) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0x09, 0x51, /* USAGE (RedUpdateChannel) */
+            0x09, 0x52, /* USAGE (GreenUpdateChannel) */
+            0x09, 0x53, /* USAGE (BlueUpdateChannel) */
+            0x09, 0x54, /* USAGE (IntensityUpdateChannel) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x26, 0xff, 0x00, /* LOGICAL_MAXIMUM (255) */
+            0x75, 0x08, /* REPORT_SIZE (8) */
+            0x95, 0x04, /* REPORT_COUNT (4) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0xc0, /* END_COLLECTION*/
+            0x85, hid_lamparray_control_report_id, /* REPORT_ID (6) */
+            0x09, 0x70, /* USAGE (LampArrayControlReport) */
+            0xa1, 0x02, /* COLLECTION (Logical) */
+            0x09, 0x71, /* USAGE (AutonomousMode) */
+            0x15, 0x00, /* LOGICAL_MINIMUM (0) */
+            0x25, 0x01, /* LOGICAL_MAXIMUM (1) */
+            0x75, 0x08, /* REPORT_SIZE (8) */
+            0x95, 0x01, /* REPORT_COUNT (1) */
+            0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0xc0, /* END_COLLECTION*/
+            0xc0 /* END_COLLECTION*/
+            }};
+
+static uint8_t udi_hid_lamparray_report_size[6] = {
+    sizeof(HID_LAMPARRAY_REPORT_1),
+    sizeof(HID_LAMPARRAY_REPORT_2),
+    sizeof(HID_LAMPARRAY_REPORT_3),
+    sizeof(HID_LAMPARRAY_REPORT_4),
+    sizeof(HID_LAMPARRAY_REPORT_5),
+    sizeof(HID_LAMPARRAY_REPORT_6) } ;
+
+static bool udi_hid_lamparray_setreport(void);
+static void udi_hid_lamparray_setreport_valid(void);
+
+static void udi_hid_lamparray_getreport_valid(void);
+
+bool udi_hid_lamparray_enable(void) {
+    // Initialize internal values
+    udi_hid_lamparray_rate                   = 0;
+    udi_hid_lamparray_protocol               = 0;
+
+    memset(udi_hid_lamparray_report, 0, HID_LAMPARRAY_REPORT_SIZE);
+    memset(udi_hid_lamparray_report_set, 0, HID_LAMPARRAY_REPORT_SIZE);
+    udi_hid_lamparray_b_report_valid = false;
+    return UDI_HID_LAMPARRAY_ENABLE_EXT();
+}
+
+void udi_hid_lamparray_disable(void) { UDI_HID_LAMPARRAY_DISABLE_EXT(); }
+
+bool udi_hid_lamparray_setup(void) { return udi_hid_setup(&udi_hid_lamparray_rate, &udi_hid_lamparray_protocol, (uint8_t *)&udi_hid_lamparray_report_desc, udi_hid_lamparray_setreport); }
+
+uint8_t udi_hid_lamparray_getsetting(void) { return 0; }
+
+static bool udi_hid_lamparray_setreport(void) {
+    if (Udd_setup_is_out()) {
+        switch (udd_g_ctrlreq.req.wValue >> 8) {
+            case USB_HID_REPORT_TYPE_FEATURE: {
+                uint8_t report_id = (udd_g_ctrlreq.req.wValue & 0xFF);
+                if (report_id < 1 || report_id > HID_LAMPARRAY_REPORTS)
+                    return false;
+                if (udi_hid_lamparray_report_size[report_id-1] <= udd_g_ctrlreq.req.wLength) {
+                    udd_g_ctrlreq.payload = udi_hid_lamparray_report_set;
+                    udd_g_ctrlreq.callback = udi_hid_lamparray_setreport_valid;
+                    udd_g_ctrlreq.payload_size = udi_hid_lamparray_report_size[report_id-1];
+                    return true;
+                }
+                                default:
+                    return false;
+            }
+        }
+    } else {
+        switch (udd_g_ctrlreq.req.wValue >> 8) {
+            case USB_HID_REPORT_TYPE_FEATURE: {
+                uint8_t report_id = (udd_g_ctrlreq.req.wValue & 0xFF);
+                if (report_id < 1 || report_id > HID_LAMPARRAY_REPORTS)
+                    return false;
+                switch (report_id) {
+                    case 1:
+                        udd_g_ctrlreq.payload = hid_lamparray_attributes_report.raw;
+                        udd_g_ctrlreq.payload_size = HID_LAMPARRAY_ATTRIBUTES_REPORT_SIZE;
+                        udd_g_ctrlreq.callback = udi_hid_lamparray_getreport_valid;
+                        return true;
+                    case 3:
+                        if (udi_hid_lamparray_report_index >= DRIVER_LED_TOTAL)
+                            udi_hid_lamparray_report_index = 0;
+                        hid_lamparray_attributes_response_report.desc.lamp_id = udi_hid_lamparray_report_index;
+                        fill_lamp_attributes(&hid_lamparray_attributes_response_report.desc);
+                        udd_g_ctrlreq.payload = hid_lamparray_attributes_response_report.raw;
+                        udd_g_ctrlreq.payload_size = HID_LAMPARRAY_ATTRIBUTES_RESPONSE_REPORT_SIZE;
+                        udd_g_ctrlreq.callback = udi_hid_lamparray_getreport_valid;
+                        udi_hid_lamparray_report_index++;
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+static void udi_hid_lamparray_getreport_valid(void) {}
+
+static void udi_hid_lamparray_setreport_valid(void) {
+    if (udi_hid_lamparray_report_set[0] == 2) {
+        udi_hid_lamparray_report_index = udi_hid_lamparray_report_set[1];
+        return;
+    }
+    UDI_HID_LAMPARRAY_RECEIVE(udi_hid_lamparray_report_set, udd_g_ctrlreq.payload_size);
+}
+
+
+#endif // HID_LAMPARRAY_ENABLE

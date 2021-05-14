@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VENDOR_ID           0x04D8
 #define PRODUCT_ID          0xEED2
 #define DEVICE_VER          0x0101
+#define RAW_USAGE_PAGE      0xBE
+#define RAW_USAGE_ID        0xEF
 
 #define MANUFACTURER        "Massdrop Inc."
 #define PRODUCT             "CTRL Keyboard"
