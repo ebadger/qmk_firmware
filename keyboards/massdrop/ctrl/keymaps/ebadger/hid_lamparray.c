@@ -6,11 +6,23 @@ bool hid_lamparray_auto_mode = true;
 int process_count = 0;
 uint32_t rgb_timer = 0;
 
+float maximum_y_position = 0;
+float minimum_x_position = 0;
+
 void map_keybindings(void) {
     uint8_t led_i[8];
     for (int i = 0; i < DRIVER_LED_TOTAL; i++) {
         led_keymap[i] = 0;
+
+        if (led_map[i].y > maximum_y_position) {
+            maximum_y_position = led_map[i].y;
+        }
+
+        if (led_map[i].x < minimum_x_position) {
+            minimum_x_position = led_map[i].x;
+        }
     }
+
     for (int col = 0; col < MATRIX_COLS; col++) {
         for (int row = 0; row < MATRIX_ROWS; row++) {
             int count = rgb_matrix_map_row_column_to_led(row, col, led_i);
@@ -28,8 +40,8 @@ uint8_t get_led_binding(uint8_t lamp_id) {
 }
 
 void fill_lamp_attributes(hid_lamparray_attributes_response_report_t *report) {
-    report->position.x = (uint32_t)(led_map[report->lamp_id].px * 25400);
-    report->position.y = (uint32_t)(led_map[report->lamp_id].py * 25400);
+    report->position.x = (uint32_t)((led_map[report->lamp_id].x + minimum_x_position) * 25400);
+    report->position.y = (uint32_t)((led_map[report->lamp_id].y - maximum_y_position) * -25400);
     report->input_binding = get_led_binding(report->lamp_id);
     report->lamp_purposes = 0x02;
     if (g_led_config.flags[report->lamp_id] & LED_FLAG_KEYLIGHT)
