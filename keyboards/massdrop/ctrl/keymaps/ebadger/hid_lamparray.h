@@ -2,6 +2,12 @@
 #ifdef HID_LAMPARRAY_ENABLE
 #include "quantum.h"
 
+// The HID Lighting and Illumination spec can be found here:
+// https://www.usb.org/sites/default/files/hutrr84_-_lighting_and_illumination_page.pdf
+//
+// Distance measurements (e.g., bounding box or lamp positions) should be expressed in micrometers.
+// Time measurements should be expressed in microseconds.
+
 #define HID_LAMPARRAY_REPORT_1 hid_lamparray_attributes_report_t
 #define HID_LAMPARRAY_REPORT_2 hid_lamparray_attributes_request_report_t
 #define HID_LAMPARRAY_REPORT_3 hid_lamparray_attributes_response_report_t
@@ -264,4 +270,5 @@ void map_keybindings(void);
             0xc0, /* END_COLLECTION*/ \
             0xc0 /* END_COLLECTION*/ \
             }
+
 #endif

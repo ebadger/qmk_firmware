@@ -926,9 +926,9 @@ hid_lamparray_attributes_report_storage_t hid_lamparray_attributes_report = {
     .report_id = hid_lamparray_attributes_report_id,
     .lamp_count = DRIVER_LED_TOTAL,
     .bounding_box = {
-        .x = 322580,
-        .y = 111760,
-        .z = 31750
+        .x = BOUNDING_BOX_X,
+        .y = BOUNDING_BOX_Y,
+        .z = BOUNDING_BOX_Z
     },
     .array_kind = 0x01, // keyboard
     .min_update_interval = (RGB_MATRIX_LED_FLUSH_LIMIT * 1000)

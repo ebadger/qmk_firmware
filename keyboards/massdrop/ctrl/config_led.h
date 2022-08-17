@@ -49,6 +49,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define V5_LOW                      2480        //5V low level (LED power rolled back to stay above this limit)
 #define V5_CAT                      2200        //5V catastrophic level (Host USB port potential to shut down)
 
+#ifdef HID_LAMPARRAY_ENABLE
+#define BOUNDING_BOX_X              368300
+#define BOUNDING_BOX_Y              139700
+#define BOUNDING_BOX_Z              35560
+#endif
+
 //LED Mapping - More practically generated from a spreadsheet program
 //id: ID of the LED (Sync with PCB callouts)
 //x: Physical X coordinate of LED (units do not matter)
