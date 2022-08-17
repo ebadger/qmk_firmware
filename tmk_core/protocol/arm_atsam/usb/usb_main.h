@@ -98,7 +98,7 @@ void                 main_raw_disable(void);
 void                 main_raw_receive(uint8_t *buffer, uint8_t len);
 #endif  // RAW_ENABLE
 
-ifdef HID_LAMPARRAY_ENABLE
+#ifdef HID_LAMPARRAY_ENABLE
 extern volatile bool main_b_lamparray_enable;
 bool                 main_lamparray_enable(void);
 void                 main_lamparray_disable(void);

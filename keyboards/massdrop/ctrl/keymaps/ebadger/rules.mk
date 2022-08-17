@@ -4,4 +4,4 @@ COMMAND_ENABLE = no         # Commands for debug and configuration
 #RAW_ENABLE = yes             # Raw devicen
 #EXTRAKEY_ENABLE = no
 #NKRO_ENABLE = no
-HID_LAMPARRAY_ENABLE = yes
+OPT_DEFS += -DHID_LAMPARRAY_ENABLE
