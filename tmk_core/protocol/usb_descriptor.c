@@ -405,6 +405,167 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM JoystickReport[] = {
 };
 #endif
 
+#ifdef HID_LAMPARRAY_ENABLE
+const USB_Descriptor_HIDReport_Datatype_t PROGMEM LampArrayReport[] = {
+    HID_RI_USAGE_PAGE(8, 0x59), /* USAGE_PAGE (LightingAndIllumination) */
+    HID_RI_USAGE(8, 0x01), /* USAGE (LampArray) */
+    HID_RI_COLLECTION(8, 0x01), /* COLLECTION (Application) */
+        HID_RI_REPORT_ID(8, 1), /* REPORT_ID (1) */
+        HID_RI_USAGE(8, 0x02), /* USAGE (LampArrayAttributesReport) */
+        HID_RI_COLLECTION(8, 0x02), /* COLLECTION (Logical) */
+            HID_RI_USAGE(8, 0x03), /* USAGE (LampCount) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(16, 0xFFFF), /* LOGICAL_MAXIMUM (65535) */
+            HID_RI_REPORT_SIZE(8, 0x10), /* REPORT_SIZE (16) */
+            HID_RI_REPORT_COUNT(8, 0x01), /* REPORT_COUNT (1) */
+            HID_RI_FEATURE(8, 0x03), /* FEATURE (Cnst,Var,Abs) */
+            HID_RI_USAGE(8, 0x04), /* USAGE (BoundingBoxWidthInMicrometers) */
+            HID_RI_USAGE(8, 0x05), /* USAGE (BoundingBoxHeightInMicrometers) */
+            HID_RI_USAGE(8, 0x06), /* USAGE (BoundingBoxDepthInMicrometers) */
+            HID_RI_USAGE(8, 0x07), /* USAGE (LampArrayKind) */
+            HID_RI_USAGE(8, 0x08), /* USAGE (MinUpdateIntervalInMicroseconds) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(32, 0x7FFFFFFF), /* LOGICAL_MAXIMUM (2147483647) */
+            HID_RI_REPORT_SIZE(8, 0x20), /* REPORT_SIZE (32) */
+            HID_RI_REPORT_COUNT(8, 0x05), /* REPORT_COUNT (5) */
+            HID_RI_FEATURE(8, 0x03), /* FEATURE (Cnst,Var,Abs) */
+        HID_RI_END_COLLECTION(0), /* END_COLLECTION*/
+        HID_RI_REPORT_ID(8, 2), /* REPORT_ID (2) */
+        HID_RI_USAGE(8, 0x20), /* USAGE (LampAttributesRequestReport) */
+        HID_RI_COLLECTION(8, 0x02), /* COLLECTION (Logical) */
+            HID_RI_USAGE(8, 0x21), /* USAGE (LampId) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(16, 0xFFFF),  /* LOGICAL_MAXIMUM (65535) */
+            HID_RI_REPORT_SIZE(8, 0x10), /* REPORT_SIZE (16) */
+            HID_RI_REPORT_COUNT(8, 0x01), /* REPORT_COUNT (1) */
+            HID_RI_FEATURE(8, 0x02), /* FEATURE (Data,Var,Abs) */
+        HID_RI_END_COLLECTION(0), /* END_COLLECTION*/
+        HID_RI_REPORT_ID(8, 3), /* REPORT_ID (3) */
+        HID_RI_USAGE(8, 0x22), /* USAGE (LampAttributesReponseReport) */
+        HID_RI_COLLECTION(8, 0x02), /* COLLECTION (Logical) */
+            HID_RI_USAGE(8, 0x21), /* USAGE (LampId) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(16, 0xffff), /* LOGICAL_MAXIMUM (65535) */
+            HID_RI_REPORT_SIZE(8, 0x10), /* REPORT_SIZE (16) */
+            HID_RI_REPORT_COUNT(8, 0x01), /* REPORT_COUNT (1) */
+            HID_RI_FEATURE(8, 0x02), /* FEATURE (Data,Var,Abs) */
+            HID_RI_USAGE(8, 0x23), /* USAGE (PositionXInMicrometers) */
+            HID_RI_USAGE(8, 0x24), /* USAGE (PositionYInMicrometers) */
+            HID_RI_USAGE(8, 0x25), /* USAGE (PositionZInMicrometers) */
+            HID_RI_USAGE(8, 0x27), /* USAGE (UpdateLatencyInMicroseconds) */
+            HID_RI_USAGE(8, 0x26), /* USAGE (LampPurposes) */
+            HID_RI_USAGE(8,  0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(32, 0x7FFFFFFF), /* LOGICAL_MAXIMUM (2147483647) */
+            HID_RI_REPORT_SIZE(8,  0x20), /* REPORT_SIZE (32) */
+            HID_RI_REPORT_COUNT(8, 0x05), /* REPORT_COUNT (5) */
+            HID_RI_FEATURE(8,  0x02), /* FEATURE (Data,Var,Abs) */
+            HID_RI_USAGE(8, 0x28), /* USAGE (RedLevelCount) */
+            HID_RI_USAGE(8, 0x29), /* USAGE (GreenLevelCount) */
+            HID_RI_USAGE(8, 0x2a), /* USAGE (BlueLevelCount) */
+            HID_RI_USAGE(8, 0x2b), /* USAGE (IntensityLevelCount) */
+            HID_RI_USAGE(8, 0x2c), /* USAGE (IsProgrammable) */
+            HID_RI_USAGE(8, 0x2d), /* USAGE (InputBinding) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(8, 0xFF),  /* LOGICAL_MAXIMUM (255) */
+            HID_RI_REPORT_SIZE(8, 0x08), /* REPORT_SIZE (8) */
+            HID_RI_REPORT_COUNT(8, 0x06), /* REPORT_COUNT (6) */
+            HID_RI_FEATURE(8, 0x02), /* FEATURE (Data,Var,Abs) */
+        HID_RI_END_COLLECTION(0), /* END_COLLECTION*/
+        HID_RI_REPORT_ID(8, 4), /* REPORT_ID (4) */
+        HID_RI_USAGE(8, 0x50), /* USAGE (LampMultiUpdateReport) */
+        HID_RI_COLLECTION(8, 0x02), /* COLLECTION (Logical) */
+            HID_RI_USAGE(8, 0x03), /* USAGE (LampCount) */
+            HID_RI_USAGE(8, 0x55), /* USAGE (LampUpdateFlags) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(8, 0x08), /* LOGICAL_MAXIMUM (8) */
+            HID_RI_REPORT_SIZE(8,  0x08), /* REPORT_SIZE (8) */
+            HID_RI_REPORT_COUNT(8, 0x02), /* REPORT_COUNT (2) */
+            HID_RI_FEATURE(8,  0x02), /* FEATURE (Data,Var,Abs) */
+            HID_RI_USAGE(8, 0x21), /* USAGE (LampId) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(16, 0xFFFF), /* LOGICAL_MAXIMUM (65535) */
+            HID_RI_REPORT_SIZE(8,  0x10), /* REPORT_SIZE (16) */
+            HID_RI_REPORT_COUNT(8, 0x08), /* REPORT_COUNT (8) */
+            HID_RI_FEATURE(8, 0x02), /* FEATURE (Data,Var,Abs) */
+            HID_RI_USAGE(8, 0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8, 0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8, 0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8, 0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_USAGE(8, 0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8, 0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8, 0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8, 0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_USAGE(8, 0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8, 0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8, 0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8, 0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_USAGE(8, 0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8, 0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8, 0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8, 0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_USAGE(8, 0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8, 0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8, 0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8, 0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_USAGE(8, 0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8, 0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8, 0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8, 0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_USAGE(8, 0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8, 0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8, 0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8, 0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_USAGE(8, 0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8, 0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8, 0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8, 0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(8, 0xFF), /* LOGICAL_MAXIMUM (255) */
+            HID_RI_REPORT_SIZE(8, 0x08), /* REPORT_SIZE (8) */
+            HID_RI_REPORT_COUNT(8, 0x20), /* REPORT_COUNT (32) */
+            HID_RI_FEATURE(8, 0x02), /* FEATURE (Data,Var,Abs) */
+        HID_RI_END_COLLECTION(0), /* END_COLLECTION*/
+        HID_RI_REPORT_ID(8, 5), /* REPORT_ID (5) */
+        HID_RI_USAGE(8,  0x60), /* USAGE (LampRangeUpdateReport) */
+        HID_RI_COLLECTION(8, 0x02), /* COLLECTION (Logical) */
+            HID_RI_USAGE(8,  0x55), /* USAGE (LampUpdateFlags) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(8, 0x08), /* LOGICAL_MAXIMUM (8) */
+            HID_RI_REPORT_SIZE(8,  0x08), /* REPORT_SIZE (8) */
+            HID_RI_REPORT_COUNT(8, 0x01), /* REPORT_COUNT (1) */
+            HID_RI_FEATURE(8,  0x02), /* FEATURE (Data,Var,Abs) */
+            HID_RI_USAGE(8,  0x61), /* USAGE (LampIdStart) */
+            HID_RI_USAGE(8,  0x62), /* USAGE (LampIdEnd) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(16, 0xFFFF), /* LOGICAL_MAXIMUM (65535) */
+            HID_RI_REPORT_SIZE(8,  0x10), /* REPORT_SIZE (16) */
+            HID_RI_REPORT_COUNT(8, 0x02), /* REPORT_COUNT (2) */
+            HID_RI_FEATURE(8,  0x02), /* FEATURE (Data,Var,Abs) */
+            HID_RI_USAGE(8,  0x51), /* USAGE (RedUpdateChannel) */
+            HID_RI_USAGE(8,  0x52), /* USAGE (GreenUpdateChannel) */
+            HID_RI_USAGE(8,  0x53), /* USAGE (BlueUpdateChannel) */
+            HID_RI_USAGE(8,  0x54), /* USAGE (IntensityUpdateChannel) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(8, 0xFF), /* LOGICAL_MAXIMUM (255) */
+            HID_RI_REPORT_SIZE(8,  0x08), /* REPORT_SIZE (8) */
+            HID_RI_REPORT_COUNT(8, 0x04), /* REPORT_COUNT (4) */
+            HID_RI_FEATURE(8,  0x02), /* FEATURE (Data,Var,Abs) */
+        HID_RI_END_COLLECTION(0), /* END_COLLECTION*/
+        HID_RI_REPORT_ID(8, 6), /* REPORT_ID (6) */
+        HID_RI_USAGE(8,  0x70), /* USAGE (LampArrayControlReport) */
+        HID_RI_COLLECTION(8, 0x02), /* COLLECTION (Logical) */
+            HID_RI_USAGE(8,  0x71), /* USAGE (AutonomousMode) */
+            HID_RI_LOGICAL_MINIMUM(8, 0x00), /* LOGICAL_MINIMUM (0) */
+            HID_RI_LOGICAL_MAXIMUM(8, 0x01), /* LOGICAL_MAXIMUM (1) */
+            HID_RI_REPORT_SIZE(8,  0x08), /* REPORT_SIZE (8) */
+            HID_RI_REPORT_COUNT(8, 0x01), /* REPORT_COUNT (1) */
+            HID_RI_FEATURE(8,  0x02), /* FEATURE (Data,Var,Abs) */
+        HID_RI_END_COLLECTION(0), /* END_COLLECTION*/
+    HID_RI_END_COLLECTION(0) /* END_COLLECTION*/
+};
+
+#endif
+
 /*
  * Device descriptor
  */
@@ -1006,7 +1167,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
             .Size               = sizeof(USB_HID_Descriptor_HID_t),
             .Type               = HID_DTYPE_HID
         },
-        .HIDSpec                = VERSION_BCD(1, 1, 1),
+        .HIDSpec                = VERSION_BCD(1, 3, 1),
         .CountryCode            = 0x00,
         .TotalReportDescriptors = 1,
         .HIDReportType          = HID_DTYPE_Report,
@@ -1023,6 +1184,57 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
         .PollingIntervalMS      = USB_POLLING_INTERVAL_MS
     },
 #endif
+
+#ifdef HID_LAMPARRAY_ENABLE
+    /*
+     * LampArray HID
+     */
+    .LampArray_Interface = {
+        .Header = {
+            .Size               = sizeof(USB_Descriptor_Interface_t),
+            .Type               = DTYPE_Interface
+        },
+        .InterfaceNumber        = LAMPARRAY_INTERFACE,
+        .AlternateSetting       = 0x00,
+        .TotalEndpoints         = 2,
+        .Class                  = HID_CSCP_HIDClass,
+        .SubClass               = HID_CSCP_NonBootSubclass,
+        .Protocol               = HID_CSCP_NonBootProtocol,
+        .InterfaceStrIndex      = NO_DESCRIPTOR
+    },
+    .LampArray_HID = {
+        .Header = {
+            .Size               = sizeof(USB_HID_Descriptor_HID_t),
+            .Type               = HID_DTYPE_HID
+        },
+        .HIDSpec                = VERSION_BCD(1, 1, 1),
+        .CountryCode            = 0x00,
+        .TotalReportDescriptors = 1,
+        .HIDReportType          = HID_DTYPE_Report,
+        .HIDReportLength        = sizeof(LampArrayReport)
+    },
+    .LampArray_INEndpoint = {
+        .Header = {
+            .Size               = sizeof(USB_Descriptor_Endpoint_t),
+            .Type               = DTYPE_Endpoint
+        },
+        .EndpointAddress        = (ENDPOINT_DIR_IN | LAMPARRAY_IN_EPNUM),
+        .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+        .EndpointSize           = LAMPARRAY_EPSIZE,
+        .PollingIntervalMS      = 0x01
+    },
+    .LampArray_OUTEndpoint = {
+        .Header = {
+            .Size               = sizeof(USB_Descriptor_Endpoint_t),
+            .Type               = DTYPE_Endpoint
+        },
+        .EndpointAddress        = (ENDPOINT_DIR_OUT | LAMPARRAY_OUT_EPNUM),
+        .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+        .EndpointSize           = LAMPARRAY_EPSIZE,
+        .PollingIntervalMS      = 0x01
+    },
+#endif
+
 };
 
 /*
@@ -1168,6 +1380,14 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
 
                     break;
 #endif
+
+#ifdef HID_LAMPARRAY_ENABLE
+                case LAMPARRAY_INTERFACE:
+                    Address = &ConfigurationDescriptor.LampArray_HID;
+                    Size    = sizeof(USB_HID_Descriptor_HID_t);
+
+                    break;
+#endif
             }
 
             break;
@@ -1222,6 +1442,14 @@ uint16_t get_usb_descriptor(const uint16_t wValue, const uint16_t wIndex, const 
                 case DIGITIZER_INTERFACE:
                     Address = &DigitizerReport;
                     Size    = sizeof(DigitizerReport);
+                    break;
+#endif
+
+#ifdef HID_LAMPARRAY_ENABLE
+                case LAMPARRAY_INTERFACE:
+                    Address = &LampArrayReport;
+                    Size    = sizeof(LampArrayReport);
+
                     break;
 #endif
             }

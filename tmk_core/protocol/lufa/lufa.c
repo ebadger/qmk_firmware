@@ -90,6 +90,10 @@ extern keymap_config_t keymap_config;
 #    include "joystick.h"
 #endif
 
+#ifdef HID_LAMPARRAY_ENABLE
+#    include "lamparray.h"
+#endif
+
 uint8_t keyboard_idle = 0;
 /* 0: Boot Protocol, 1: Report Protocol(default) */
 uint8_t        keyboard_protocol  = 1;
@@ -502,6 +506,11 @@ void EVENT_USB_Device_ConfigurationChanged(void) {
     ConfigSuccess &= Endpoint_ConfigureEndpoint((DIGITIZER_IN_EPNUM | ENDPOINT_DIR_IN), EP_TYPE_INTERRUPT, DIGITIZER_EPSIZE, 1);
 #endif
 
+#ifdef HID_LAMPARRAY_ENABLE
+    ConfigSuccess &= Endpoint_ConfigureEndpoint((LAMPARRAY_IN_EPNUM | ENDPOINT_DIR_IN), EP_TYPE_INTERRUPT, LAMPARRAY_EPSIZE, 1);
+    ConfigSuccess &= Endpoint_ConfigureEndpoint((LAMPARRAY_OUT_EPNUM | ENDPOINT_DIR_OUT), EP_TYPE_INTERRUPT, LAMPARRAY_EPSIZE, 1);
+#endif
+
     usb_device_state_set_configuration(USB_DeviceState == DEVICE_STATE_Configured, USB_Device_ConfigurationNumber);
 }
 
@@ -523,27 +532,62 @@ Other Device    Required    Optional    Optional    Optional    Optional    Opti
  *  This is fired before passing along unhandled control requests to the library for processing internally.
  */
 void EVENT_USB_Device_ControlRequest(void) {
-    uint8_t *ReportData = NULL;
-    uint8_t  ReportSize = 0;
 
     /* Handle HID Class specific requests */
     switch (USB_ControlRequest.bRequest) {
         case HID_REQ_GetReport:
             if (USB_ControlRequest.bmRequestType == (REQDIR_DEVICETOHOST | REQTYPE_CLASS | REQREC_INTERFACE)) {
-                Endpoint_ClearSETUP();
 
                 // Interface
                 switch (USB_ControlRequest.wIndex) {
                     case KEYBOARD_INTERFACE:
+                    {
+                        uint8_t *ReportDataKB = NULL;
+                        uint8_t  ReportSizeKB = 0;
+                        Endpoint_ClearSETUP();
                         // TODO: test/check
-                        ReportData = (uint8_t *)&keyboard_report_sent;
-                        ReportSize = sizeof(keyboard_report_sent);
+                        ReportDataKB = (uint8_t *)&keyboard_report_sent;
+                        ReportSizeKB = sizeof(keyboard_report_sent);
+                        /* Write the report data to the control endpoint */
+                        Endpoint_Write_Control_Stream_LE(ReportDataKB, ReportSizeKB);
+                        Endpoint_ClearOUT();
                         break;
+                    }
+#ifdef HID_LAMPARRAY_ENABLE
+                    case LAMPARRAY_INTERFACE:
+                    {
+                        uint16_t ReportSize = 0;
+                        uint8_t  ReportID   = (USB_ControlRequest.wValue & 0xFF);
+                        uint8_t  ReportType = (USB_ControlRequest.wValue >> 8) - 1;
+                        uint8_t  ReportData[0x100]; // magic number for now
+                        USB_ClassInfo_HID_Device_t *pDescriptor;
+
+                        get_usb_descriptor(HID_DTYPE_HID << 8, LAMPARRAY_INTERFACE, (void *)&pDescriptor);
+
+                        memset(ReportData, 0, sizeof(ReportData));
+
+
+                        Endpoint_SelectEndpoint(ENDPOINT_CONTROLEP);
+
+                        Endpoint_ClearSETUP();
+
+                        while (!(Endpoint_IsINReady()))
+                        ;
+
+                        if (ReportID)
+                        {
+                            Endpoint_Write_8(ReportID);
+                        }
+
+                        CALLBACK_HID_Device_CreateHIDReport(pDescriptor, &ReportID, ReportType, ReportData, &ReportSize);
+
+                        Endpoint_Write_Control_Stream_LE(ReportData, ReportSize);
+                        Endpoint_ClearOUT();
+                        break;
+                    }
+#endif
                 }
 
-                /* Write the report data to the control endpoint */
-                Endpoint_Write_Control_Stream_LE(ReportData, ReportSize);
-                Endpoint_ClearOUT();
             }
 
             break;
@@ -574,6 +618,29 @@ void EVENT_USB_Device_ControlRequest(void) {
                         Endpoint_ClearOUT();
                         Endpoint_ClearStatusStage();
                         break;
+#ifdef HID_LAMPARRAY_ENABLE
+                    case LAMPARRAY_INTERFACE:
+                    {
+                        uint16_t ReportSize = USB_ControlRequest.wLength;
+                        uint8_t  ReportID   = (USB_ControlRequest.wValue & 0xFF);
+                        uint8_t  ReportType = (USB_ControlRequest.wValue >> 8) - 1;
+                        uint8_t  ReportData[ReportSize];
+                        USB_ClassInfo_HID_Device_t *pDescriptor;
+
+                        Endpoint_ClearSETUP();
+
+                        while (!(Endpoint_IsINReady()))
+                        ;
+
+                        Endpoint_Read_Control_Stream_LE(ReportData, ReportSize);
+                        Endpoint_ClearIN();
+
+                        get_usb_descriptor(HID_DTYPE_HID << 8, LAMPARRAY_INTERFACE, (void *)&pDescriptor);
+
+                        CALLBACK_HID_Device_ProcessHIDReport(pDescriptor, ReportID, ReportType,
+                                                            &ReportData[ReportID ? 1 : 0], ReportSize - (ReportID ? 1 : 0));
+                    }
+#endif
                 }
             }
 
