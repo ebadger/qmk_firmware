@@ -1,5 +1,9 @@
 #include "keymap.h"
 
+#ifdef HID_LAMPARRAY_ENABLE
+extern uint32_t rgb_timer;
+#endif
+
 enum ctrl_keycodes {
     U_T_AUTO = SAFE_RANGE, //USB Extra Port Toggle Auto Detect / Always Active
     U_T_AGCR,              //USB Toggle Automatic GCR control
@@ -57,6 +61,13 @@ uint8_t rgb_matrix_map_keycode_to_led(uint8_t keycode, uint8_t *led_i) {
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
+#ifdef HID_LAMPARRAY_ENABLE
+    if (rgb_timer != 0 && timer_elapsed32(rgb_timer) >= RGB_MATRIX_LED_FLUSH_LIMIT)
+    {
+        rgb_timer = 0;
+        rgb_matrix_update_pwm_buffers();
+    }
+#endif
 };
 
 #define MODS_SHIFT  (get_mods() & MOD_MASK_SHIFT)
@@ -65,7 +76,7 @@ void matrix_scan_user(void) {
 
 void keyboard_post_init_user(void) {
     debug_enable=true;
-    map_keybindings();    
+    map_keybindings();
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {

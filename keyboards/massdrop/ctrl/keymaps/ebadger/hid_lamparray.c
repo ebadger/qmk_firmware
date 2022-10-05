@@ -64,10 +64,8 @@ void hid_lamparray_recv(uint8_t *data, uint8_t length) {
                     process_count++;
                 }
             }
-            if (rgb_timer == 0 || timer_elapsed32(rgb_timer) >= RGB_MATRIX_LED_FLUSH_LIMIT) {
-                rgb_matrix_update_pwm_buffers();
-                rgb_timer = timer_read32();
-            }
+
+            rgb_timer = timer_read32();
 
         break;
         }
@@ -80,10 +78,8 @@ void hid_lamparray_recv(uint8_t *data, uint8_t length) {
                     process_count++;
 
             }
-            if (rgb_timer == 0 || timer_elapsed32(rgb_timer) >= RGB_MATRIX_LED_FLUSH_LIMIT) {
-                rgb_matrix_update_pwm_buffers();
-                rgb_timer = timer_read32();
-            }
+
+            rgb_timer = timer_read32();
 
             break;
         }
