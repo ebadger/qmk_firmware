@@ -92,6 +92,14 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardReport[] = {
         HID_RI_REPORT_COUNT(8, 0x05),
         HID_RI_REPORT_SIZE(8, 0x01),
         HID_RI_OUTPUT(8, HID_IOF_DATA | HID_IOF_VARIABLE | HID_IOF_ABSOLUTE | HID_IOF_NON_VOLATILE),
+        // Keyboard extended information
+        HID_RI_USAGE_PAGE(8, 0x0C),    // Consumer
+        HID_RI_COLLECTION(8, 0x02),    // Logical
+            HID_RI_USAGE_MINIMUM(8, 0x01), // Keyboard Form Factor
+            // HID_RI_USAGE_MAXIMUM(8, 0x),
+            HID_RI_REPORT_COUNT(8, 0x06),
+            // HID_RI_OUTPUT(),
+        HID_RI_END_COLLECTION(0),
         // LED padding (3 bits)
         HID_RI_REPORT_COUNT(8, 0x01),
         HID_RI_REPORT_SIZE(8, 0x03),
