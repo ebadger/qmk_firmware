@@ -276,8 +276,14 @@ typedef struct {
     usb_ep_desc_t        ep;
 } udi_hid_kbd_desc_t;
 
+#ifndef KEYBOARD_JPN
+#define UDI_HID_KBD_REPORT_DESC_LENGTH 59
+#else
+#define UDI_HID_KBD_REPORT_DESC_LENGTH 90
+#endif
+
 typedef struct {
-    uint8_t array[59];
+    uint8_t array[UDI_HID_KBD_REPORT_DESC_LENGTH];
 } udi_hid_kbd_report_desc_t;
 
 // clang-format off

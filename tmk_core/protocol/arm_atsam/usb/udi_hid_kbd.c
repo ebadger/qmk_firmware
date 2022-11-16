@@ -106,8 +106,6 @@ UDC_DESC_STORAGE udi_hid_kbd_report_desc_t udi_hid_kbd_report_desc = {{
     0x95, 0x08, //   Report Count (8)
     0x75, 0x01, //   Report Size (1)
     0x81, 0x02, //   Input (Data, Variable, Absolute)
-    // Reserved (1 byte)
-    0x81, 0x01, //   Input (Constant)
     // Keycodes (6 bytes)
     0x19, 0x00, //   Usage Minimum (0)
     0x29, 0xFF, //   Usage Maximum (255)
@@ -116,6 +114,28 @@ UDC_DESC_STORAGE udi_hid_kbd_report_desc_t udi_hid_kbd_report_desc = {{
     0x95, 0x06, //   Report Count (6)
     0x75, 0x08, //   Report Size (8)
     0x81, 0x00, //   Input (Data, Array, Absolute)
+
+#ifndef KEYBOARD_JPN
+    // Reserved (1 byte)
+    0x81, 0x01, //   Input (Constant)
+#else
+    // Keyboard Extended Attributes (1 byte)
+    0x05, 0x0C,       //   Usage Page (Consumer)
+    0x0A, 0xC0, 0x02, //   Usage (Keyboard Extended Attributes)
+    0xA1, 0x02,       //   Collection (Logical)
+    0x0A, 0xC1, 0x02, //       UsageId (Keyboard Form Factor)
+    0x25, 0x02,       //       LogicalMaximum (2)
+    0x75, 0x02,       //       ReportSize (2)
+    0xB1, 0x03,       //       Feature (Constant, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0x0A, 0xC2, 0x02, //       UsageId (Keyboard Key Type)
+    0x25, 0x03,       //       LogicalMaximum (3)
+    0xB1, 0x03,       //       Feature (Constant, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0x0A, 0xC3, 0x02, //       UsageId (Keyboard Physical Layout)
+    0x25, 0x06,       //       LogicalMaximum (6)
+    0x75, 0x03,       //       ReportSize (3)
+    0xB1, 0x03,       //       Feature (Constant, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0xC0,             //   End Collection
+#endif
 
     // Status LEDs (5 bits)
     0x05, 0x08, //   Usage Page (LED)
@@ -126,6 +146,7 @@ UDC_DESC_STORAGE udi_hid_kbd_report_desc_t udi_hid_kbd_report_desc = {{
     0x95, 0x05, //   Report Count (5)
     0x75, 0x01, //   Report Size (1)
     0x91, 0x02, //   Output (Data, Variable, Absolute)
+
     // LED padding (3 bits)
     0x95, 0x03, //   Report Count (3)
     0x91, 0x01, //   Output (Constant)
