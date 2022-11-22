@@ -26,7 +26,6 @@ enum hid_lamparray_report_id {
     hid_lamparray_control_report_id = 6
 };
 
-
 typedef struct {
     uint8_t     red;
     uint8_t     green;
@@ -77,6 +76,8 @@ typedef struct {
     } level_counts;
     uint8_t    is_programmable;
     uint8_t    input_binding;
+    uint16_t   generic_input_binding_usage_page;
+    uint16_t   generic_input_binding_usage_id;
 } __attribute__((packed, aligned(1))) hid_lamparray_attributes_response_report_t;
 #define HID_LAMPARRAY_ATTRIBUTES_RESPONSE_REPORT_SIZE sizeof(hid_lamparray_attributes_response_report_t)
 

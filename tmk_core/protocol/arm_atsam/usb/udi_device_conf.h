@@ -279,7 +279,18 @@ typedef struct {
 #ifndef KEYBOARD_JPN
 #define UDI_HID_KBD_REPORT_DESC_LENGTH 59
 #else
-#define UDI_HID_KBD_REPORT_DESC_LENGTH 90
+
+typedef struct {
+    uint8_t version;
+    uint8_t formFactor;
+    uint8_t keyType;
+    uint8_t physicalLayout;
+    uint8_t vendorSpecificPhysicalLayout;
+    uint8_t ietfLanguageTagIndex;
+    uint8_t implementedInputAssistControls;
+} udi_hid_kbd_extended_attributes_t;
+
+#define UDI_HID_KBD_REPORT_DESC_LENGTH 96
 #endif
 
 typedef struct {
@@ -325,7 +336,11 @@ typedef struct {
 extern uint8_t udi_hid_kbd_report_set;
 
 // report buffer (to host)
+#ifndef KEYBOARD_JPN
 #define UDI_HID_KBD_REPORT_SIZE 8
+#else
+#define UDI_HID_KBD_REPORT_SIZE 12
+#endif
 extern uint8_t udi_hid_kbd_report[UDI_HID_KBD_REPORT_SIZE];
 
 COMPILER_PACK_RESET()
@@ -818,7 +833,7 @@ COMPILER_PACK_RESET()
 #ifdef HID_LAMPARRAY_ENABLE
 #include "hid_lamparray.h"
 #define HID_LAMPARRAY_REPORT_SIZE 51 // extra byte for report ID
-#define HID_LAMPARRAY_DESC_SIZE 327
+#define HID_LAMPARRAY_DESC_SIZE 344
 
 COMPILER_PACK_SET(1)
 

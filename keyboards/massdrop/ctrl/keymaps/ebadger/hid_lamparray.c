@@ -50,6 +50,8 @@ void fill_lamp_attributes(hid_lamparray_attributes_response_report_t *report) {
         report->lamp_purposes = 0x01;
     if (g_led_config.flags[report->lamp_id] & LED_FLAG_INDICATOR)
         report->lamp_purposes = report->lamp_purposes & 0x08;
+    report->generic_input_binding_usage_page = 0x07;
+    report->generic_input_binding_usage_id = get_led_binding(report->lamp_id);
 }
 
 void hid_lamparray_recv(uint8_t *data, uint8_t length) {

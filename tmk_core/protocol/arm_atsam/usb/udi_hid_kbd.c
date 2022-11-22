@@ -56,6 +56,7 @@
 #include <string.h>
 #include "report.h"
 #include "usb_descriptor_common.h"
+#include "print.h"
 
 //***************************************************************************
 // KBD
@@ -94,6 +95,7 @@ static uint8_t udi_hid_kbd_report_trans[UDI_HID_KBD_REPORT_SIZE];
 
 COMPILER_WORD_ALIGNED
 UDC_DESC_STORAGE udi_hid_kbd_report_desc_t udi_hid_kbd_report_desc = {{
+#ifndef KEYBOARD_JPN
     0x05, 0x01, // Usage Page (Generic Desktop)
     0x09, 0x06, // Usage (Keyboard)
     0xA1, 0x01, // Collection (Application)
@@ -106,6 +108,8 @@ UDC_DESC_STORAGE udi_hid_kbd_report_desc_t udi_hid_kbd_report_desc = {{
     0x95, 0x08, //   Report Count (8)
     0x75, 0x01, //   Report Size (1)
     0x81, 0x02, //   Input (Data, Variable, Absolute)
+    // Reserved (1 byte)
+    0x81, 0x01, //   Input (Constant)
     // Keycodes (6 bytes)
     0x19, 0x00, //   Usage Minimum (0)
     0x29, 0xFF, //   Usage Maximum (255)
@@ -114,29 +118,6 @@ UDC_DESC_STORAGE udi_hid_kbd_report_desc_t udi_hid_kbd_report_desc = {{
     0x95, 0x06, //   Report Count (6)
     0x75, 0x08, //   Report Size (8)
     0x81, 0x00, //   Input (Data, Array, Absolute)
-
-#ifndef KEYBOARD_JPN
-    // Reserved (1 byte)
-    0x81, 0x01, //   Input (Constant)
-#else
-    // Keyboard Extended Attributes (1 byte)
-    0x05, 0x0C,       //   Usage Page (Consumer)
-    0x0A, 0xC0, 0x02, //   Usage (Keyboard Extended Attributes)
-    0xA1, 0x02,       //   Collection (Logical)
-    0x0A, 0xC1, 0x02, //       UsageId (Keyboard Form Factor)
-    0x25, 0x02,       //       LogicalMaximum (2)
-    0x75, 0x02,       //       ReportSize (2)
-    0xB1, 0x03,       //       Feature (Constant, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
-    0x0A, 0xC2, 0x02, //       UsageId (Keyboard Key Type)
-    0x25, 0x03,       //       LogicalMaximum (3)
-    0xB1, 0x03,       //       Feature (Constant, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
-    0x0A, 0xC3, 0x02, //       UsageId (Keyboard Physical Layout)
-    0x25, 0x06,       //       LogicalMaximum (6)
-    0x75, 0x03,       //       ReportSize (3)
-    0xB1, 0x03,       //       Feature (Constant, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
-    0xC0,             //   End Collection
-#endif
-
     // Status LEDs (5 bits)
     0x05, 0x08, //   Usage Page (LED)
     0x19, 0x01, //   Usage Minimum (Num Lock)
@@ -146,11 +127,59 @@ UDC_DESC_STORAGE udi_hid_kbd_report_desc_t udi_hid_kbd_report_desc = {{
     0x95, 0x05, //   Report Count (5)
     0x75, 0x01, //   Report Size (1)
     0x91, 0x02, //   Output (Data, Variable, Absolute)
-
     // LED padding (3 bits)
     0x95, 0x03, //   Report Count (3)
     0x91, 0x01, //   Output (Constant)
     0xC0        // End Collection
+#else
+    0x05, 0x01,          // UsagePage(Generic Desktop[1])
+    0x09, 0x06,          // UsageId(Keyboard[6])
+    0xA1, 0x01,          // Collection(Application)
+    0x85, 0x01,          //     ReportId(1)
+    0x05, 0x07,          //     UsagePage(Keyboard/Keypad[7])
+    0x19, 0xE0,          //     UsageIdMin(Keyboard LeftControl[224])
+    0x29, 0xE7,          //     UsageIdMax(Keyboard Right GUI[231])
+    0x15, 0x00,          //     LogicalMinimum(0)
+    0x25, 0x01,          //     LogicalMaximum(1)
+    0x95, 0x08,          //     ReportCount(8)
+    0x75, 0x01,          //     ReportSize(1)
+    0x81, 0x02,          //     Input(Data, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, BitField)
+    0x19, 0x01,          //     UsageIdMin(ErrorRollOver[1])
+    0x29, 0x65,          //     UsageIdMax(Keyboard Application[101])
+    0x15, 0x01,          //     LogicalMinimum(1)
+    0x25, 0x65,          //     LogicalMaximum(101)
+    0x75, 0x07,          //     ReportSize(7)
+    0x81, 0x00,          //     Input(Data, Array, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, BitField)
+    0x05, 0x08,          //     UsagePage(LED[8])
+    0x19, 0x01,          //     UsageIdMin(Num Lock[1])
+    0x29, 0x05,          //     UsageIdMax(Kana[5])
+    0x15, 0x00,          //     LogicalMinimum(0)
+    0x25, 0x01,          //     LogicalMaximum(1)
+    0x95, 0x05,          //     ReportCount(5)
+    0x75, 0x01,          //     ReportSize(1)
+    0x91, 0x02,          //     Output(Data, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0x95, 0x01,          //     ReportCount(1)
+    0x75, 0x03,          //     ReportSize(3)
+    0x91, 0x03,          //     Output(Constant, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0x05, 0x0C,          //     UsagePage(Consumer[12])
+    0x0A, 0xC0, 0x02,    //     UsageId(Extended Keyboard Attributes Collection[704])
+    0xA1, 0x02,          //     Collection(Logical)
+    0x0A, 0xC1, 0x02,    //         UsageId(Keyboard Form Factor[705])
+    0x25, 0x02,          //         LogicalMaximum(2)
+    0x75, 0x02,          //         ReportSize(2)
+    0xB1, 0x02,          //         Feature(Data, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0x0A, 0xC2, 0x02,    //         UsageId(Keyboard Key Type[706])
+    0x25, 0x03,          //         LogicalMaximum(3)
+    0xB1, 0x02,          //         Feature(Data, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0x0A, 0xC3, 0x02,    //         UsageId(Keyboard Physical Layout[707])
+    0x25, 0x06,          //         LogicalMaximum(6)
+    0x75, 0x03,          //         ReportSize(3)
+    0xB1, 0x02,          //         Feature(Data, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0xC0,                //     EndCollection()
+    0x75, 0x01,          //     ReportSize(1)
+    0xB1, 0x03,          //     Feature(Constant, Variable, Absolute, NoWrap, Linear, PreferredState, NoNullPosition, NonVolatile, BitField)
+    0xC0                 // EndCollection()
+#endif
 }};
 
 static bool udi_hid_kbd_setreport(void);
@@ -980,7 +1009,9 @@ hid_lamparray_attributes_response_report_storage_t hid_lamparray_attributes_resp
             .intensity = 0x01
         },
         .is_programmable = 0x01,
-        .input_binding = 0x00
+        .input_binding = 0x00,
+        .generic_input_binding_usage_page = 0x0000,
+        .generic_input_binding_usage_id = 0x0000
     }
 };
 
@@ -1049,6 +1080,13 @@ UDC_DESC_STORAGE udi_hid_lamparray_report_desc_t udi_hid_lamparray_report_desc =
             0x75, 0x08, /* REPORT_SIZE (8) */
             0x95, 0x06, /* REPORT_COUNT (6) */
             0xb1, 0x02, /* FEATURE (Data,Var,Abs) */
+            0x09, 0x2E, /* USAGE (InputBindingUsagePage[46])  */
+            0x09, 0x2F, /* USAGE (InputBindingUsageId[47]) */
+            0x15, 0x01, /* LOGICAL_MINIMUM(1) */
+            0x27, 0xFF, 0xFF, 0x00, 0x00, /* LOGICAL_MAXIMUM(65,535) */
+            0x95, 0x02, /* REPORT_COUNT(2) */
+            0x75, 0x10, /* REPORT_SIZE (16) */
+            0xB1, 0x42, /* FEATURE (Data, Variable, Absolute, NoWrap, Linear, PreferredState, NullState, NonVolatile, BitField) */
             0xc0, /* END_COLLECTION*/
             0x85, hid_lamparray_multi_update_report_id, /* REPORT_ID (4) */
             0x09, 0x50, /* USAGE (LampMultiUpdateReport) */
@@ -1186,8 +1224,8 @@ static bool udi_hid_lamparray_setreport(void) {
                     udd_g_ctrlreq.payload_size = udi_hid_lamparray_report_size[report_id-1];
                     return true;
                 }
-                                default:
-                    return false;
+            default:
+                return false;
             }
         }
     } else {
@@ -1205,6 +1243,14 @@ static bool udi_hid_lamparray_setreport(void) {
                     case 3:
                         if (udi_hid_lamparray_report_index >= DRIVER_LED_TOTAL)
                             udi_hid_lamparray_report_index = 0;
+
+                        print("Testing does this work?\n");
+                        uprintf("Lamp Index: %d, request length: %d (%d? %d?)\n",
+                            udi_hid_lamparray_report_index,
+                            udd_g_ctrlreq.req.wLength,
+                            HID_LAMPARRAY_ATTRIBUTES_RESPONSE_REPORT_SIZE,
+                            HID_LAMPARRAY_REPORT_SIZE);
+
                         hid_lamparray_attributes_response_report.desc.lamp_id = udi_hid_lamparray_report_index;
                         fill_lamp_attributes(&hid_lamparray_attributes_response_report.desc);
                         udd_g_ctrlreq.payload = hid_lamparray_attributes_response_report.raw;
